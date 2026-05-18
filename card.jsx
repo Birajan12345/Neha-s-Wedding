@@ -104,21 +104,19 @@ const IconPin = () => (
 /* ---------- Envelope ---------- */
 
 const Envelope = ({ onOpen }) => {
-  const [state, setState] = useState('closed'); // closed | opening | gone
+  const [phase, setPhase] = useState('closed'); // closed | opening | revealed | gone
 
   const handleOpen = () => {
-    if (state !== 'closed') return;
-    setState('opening');
-    setTimeout(() => {
-      setState('gone');
-      onOpen();
-    }, 1400);
+    if (phase !== 'closed') return;
+    setPhase('opening');
+    setTimeout(() => setPhase('revealed'), 700);
+    setTimeout(() => { setPhase('gone'); onOpen(); }, 2500);
   };
 
   return (
     <div className="stage">
       <div
-        className={`envelope-wrap ${state}`}
+        className={`envelope-wrap ${phase}`}
         onClick={handleOpen}
         role="button"
         tabIndex={0}
@@ -130,7 +128,7 @@ const Envelope = ({ onOpen }) => {
         </div>
 
         {/* Letter peeking from inside */}
-        <div className="letter-peek">
+        <div className="letter-peek letter">
           <FloralLetterCorner />
           <div className="corner tl"><FloralLetterCorner /></div>
           <div className="corner tr"><FloralLetterCorner /></div>
