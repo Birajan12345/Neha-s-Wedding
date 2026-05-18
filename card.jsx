@@ -104,42 +104,48 @@ const IconPin = () => (
 /* ---------- Envelope ---------- */
 
 const Envelope = ({ onOpen }) => {
-  const [phase, setPhase] = useState('closed'); // closed | opening | revealed | gone
+  // phase: closed → opening (seal hides, flap flips) → revealed (letter pops) → gone (fade)
+  const [phase, setPhase] = useState('closed');
 
   const handleOpen = () => {
     if (phase !== 'closed') return;
-    setPhase('opening');
-    setTimeout(() => setPhase('revealed'), 700);
-    setTimeout(() => { setPhase('gone'); onOpen(); }, 2500);
+    // ===== 2.5-second opening sequence =====
+    setPhase('opening');                                         // 0.0s: flap flips, seal disappears, letter fades in inside
+    setTimeout(() => setPhase('revealed'), 700);                 // 0.7s: letter pops out (scales up, stays centered)
+    setTimeout(() => { setPhase('gone'); onOpen(); }, 2500);     // 2.5s: envelope fades, full invite appears
   };
+
+  // Stacked class names so existing CSS keeps working
+  const cls =
+    phase === 'opening'  ? 'opening' :
+    phase === 'revealed' ? 'opening revealed' :
+    phase === 'gone'     ? 'opening revealed gone' : '';
 
   return (
     <div className="stage">
       <div
-        className={`envelope-wrap ${phase}`}
+        className={`envelope-wrap ${cls}`}
         onClick={handleOpen}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleOpen(); }}
-        aria-label="Tap to open invitation"
+        aria-label="Tap the wax seal to open the invitation"
       >
         <div className="envelope">
           <div className="envelope-border"></div>
         </div>
 
-        {/* Letter peeking from inside */}
-        <div className="letter-peek letter">
-          <FloralLetterCorner />
-          <div className="corner tl"><FloralLetterCorner /></div>
-          <div className="corner tr"><FloralLetterCorner /></div>
-          <div className="corner bl"><FloralLetterCorner /></div>
-          <div className="corner br"><FloralLetterCorner /></div>
-          <div className="peek-subtitle">YOU ARE INVITED</div>
-          <div className="peek-rule"></div>
-          <div className="peek-monogram">Neha &amp; Prajwal</div>
-          <div className="peek-rule"></div>
-          <div className="peek-subtitle">27 · JUNE · 2026</div>
-          <div className="peek-hint">TAP TO OPEN</div>
+        {/* The invite letter — hidden inside, pops out when seal is broken */}
+        <div className="letter" aria-hidden={phase === 'closed'}>
+          <div className="letter-corner tl"><FloralLetterCorner /></div>
+          <div className="letter-corner tr"><FloralLetterCorner /></div>
+          <div className="letter-corner bl"><FloralLetterCorner /></div>
+          <div className="letter-corner br"><FloralLetterCorner /></div>
+          <div className="letter-eyebrow">YOU ARE INVITED</div>
+          <div className="letter-rule"></div>
+          <div className="letter-names">Neha &amp; Prajwal</div>
+          <div className="letter-rule"></div>
+          <div className="letter-date">27 · JUNE · 2026</div>
         </div>
 
         <div className="envelope-pocket"></div>
@@ -147,6 +153,7 @@ const Envelope = ({ onOpen }) => {
           <div className="wax-seal">N<span style={{fontSize:'14px',margin:'0 2px',color:'#f5d4d4'}}>♥</span>P</div>
         </div>
       </div>
+      <div className="open-hint"><span>TAP THE SEAL TO OPEN</span></div>
     </div>
   );
 };
