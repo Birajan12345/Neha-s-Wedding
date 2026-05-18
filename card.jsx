@@ -101,6 +101,38 @@ const IconPin = () => (
   </svg>
 );
 
+/* ---------- Scroll Hint ---------- */
+
+const ScrollHint = () => {
+  const [hidden, setHidden] = useState(false);
+  const [delayed, setDelayed] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setDelayed(true), 1200);
+    return () => clearTimeout(t);
+  }, []);
+  useEffect(() => {
+    if (!delayed) return;
+    const onScroll = () => { if (window.scrollY > 40) setHidden(true); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    const t = setTimeout(() => setHidden(true), 8000);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(t);
+    };
+  }, [delayed]);
+  if (!delayed) return null;
+  return (
+    <div className={`scroll-hint ${hidden ? 'hidden' : ''}`} aria-hidden="true">
+      <div className="scroll-hint-label">SCROLL FOR MORE</div>
+      <svg className="scroll-hint-chev" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"
+           strokeLinejoin="round">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </div>
+  );
+};
+
 /* ---------- Envelope ---------- */
 
 const Envelope = ({ onOpen }) => {
@@ -446,6 +478,7 @@ const App = () => {
         <Details />
         <Closing onClose={handleClose} />
       </div>
+      <ScrollHint />
       <Tweaks tweaks={tweaks} setTweak={setTweak} />
     </>
   );
